@@ -22,7 +22,8 @@
   "dependencies": {
     "body-parser": "^1.12.4",
     "express": "~4.12.3",
-    "mongoose": "^4.0.3"
+    "mongoose": "^4.0.3",
+    "mongoose-auto-increment": "^4.0.0"
   },
   "devDependencies": {},
   "bundleDependencies": [],

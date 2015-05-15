@@ -11,18 +11,17 @@ router.route('/studienplan')
             if (err) {
                 return res.send(err);
             }
-
             res.json(sp);
         });
     }).post(function (req, res) {
+        console.log(req.body);
         var sp = new Studienplan(req.body);
 
         sp.save(function (err) {
             if (err) {
                 return res.send(err);
             }
-
-            res.send({message: 'Studienplan Added'});
+            res.send({message: 'Studienplan Added', id: sp._id});
         });
     });
 router.route('/studienplan/:id').
@@ -46,18 +45,22 @@ router.route('/studienplan/:id').
             });
         });
     }).get(function (req, res) {
-        Movie.findOne({_id: req.params.id}, function (err, movie) {
+        Studienplan.findOne({_id: req.params.id}, function (err, sp) {
             if (err) {
                 return res.send(err);
             }
-
-            res.json(movie);
+            if (sp == null) {
+                res.status(404).send({error: "not found"});
+            }
+            else
+                res.json(sp);
         });
     }).delete(function (req, res) {
-        Movie.remove({
+        Studienplan.remove({
             _id: req.params.id
-        }, function (err, movie) {
+        }, function (err, sp) {
             if (err) {
+
                 return res.send(err);
             }
 

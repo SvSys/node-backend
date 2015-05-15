@@ -4,7 +4,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-var studienplaene = require('./routes/studienplaene'); //routes are defined here
+var autoIncrement = require('mongoose-auto-increment');
 var app = express(); //Create the Express app
 
 //connect to our database
@@ -12,15 +12,16 @@ var app = express(); //Create the Express app
 var dbName = 'abirechner';
 var opts = {
     user: "admin",
-    pass: "Lnvhzr3PA4uq"
+    pass: "admin"
 };
 var connectionString = 'mongodb://localhost:27017/' + dbName;
 
-mongoose.connect(connectionString), opts;
-
+var connection = mongoose.connect(connectionString);
+autoIncrement.initialize(connection);
 //configure body-parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+var studienplaene = require('./routes/studienplaene'); //routes are defined here
 app.use('/api', studienplaene); //This is our route middleware
 
 module.exports = app;
