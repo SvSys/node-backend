@@ -10,11 +10,15 @@ var app = express(); //Create the Express app
 //connect to our database
 //Ideally you will obtain DB details from a config file
 var dbName = 'abirechner';
+var host = process.env.OPENSHIFT_MONGODB_DB_HOST || "127.0.0.1";
+var port = process.env.OPENSHIFT_MONGODB_DB_PORT || "27017";
+var username = process.env.OPENSHIFT_MONGODB_DB_USERNAME || "";
+var password = process.env.OPENSHIFT_MONGODB_DB_PASSWORD || "";
 var opts = {
-    user: "admin",
-    pass: "Lnvhzr3PA4uq"
+    user: username,
+    pass: password
 };
-var connectionString = 'mongodb://localhost:27017/' + dbName;
+var connectionString = 'mongodb://'+host+':'+port+'/' + dbName;
 
 var connection = mongoose.connect(connectionString, opts);
 autoIncrement.initialize(connection);
