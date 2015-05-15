@@ -12,11 +12,11 @@ var app = express(); //Create the Express app
 var dbName = 'abirechner';
 var opts = {
     user: "admin",
-    pass: "admin"
+    pass: "Lnvhzr3PA4uq"
 };
 var connectionString = 'mongodb://localhost:27017/' + dbName;
 
-var connection = mongoose.connect(connectionString);
+var connection = mongoose.connect(connectionString, opts);
 autoIncrement.initialize(connection);
 //configure body-parser
 app.use(bodyParser.json());
