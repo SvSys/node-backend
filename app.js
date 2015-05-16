@@ -22,9 +22,19 @@ var connectionString = 'mongodb://'+host+':'+port+'/' + dbName;
 
 var connection = mongoose.connect(connectionString, opts);
 autoIncrement.initialize(connection);
+
+var allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+    next();
+};
+
 //configure body-parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(allowCrossDomain);
 var studienplaene = require('./routes/studienplaene'); //routes are defined here
 app.use('/api', studienplaene); //This is our route middleware
 
