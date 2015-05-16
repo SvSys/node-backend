@@ -5,6 +5,10 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var autoIncrement = require('mongoose-auto-increment');
 
+function validator(val) {
+    return JSON.stringify(val).length < 2000;
+}
+
 var spScheme = new Schema({
     schwerpunkt: String,
     p1: {
@@ -57,7 +61,7 @@ var spScheme = new Schema({
             g2: Boolean
         }
     },
-    fachstunden: Schema.Types.Mixed
+    fachstunden: {type: Schema.Types.Mixed, validate: [validator, "Object is too big"]}
 });
 spScheme.plugin(autoIncrement.plugin, 'Studienplan');
 

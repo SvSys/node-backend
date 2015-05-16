@@ -2,8 +2,13 @@
  * Created by jan on 15.05.15.
  */
 var Studienplan = require('../models/studienplan');
+var Password = require('../models/password');
 var express = require('express');
 var router = express.Router();
+
+var randomstring = require('../lib/randomstring');
+var crypto = require('crypto')
+    , shasum = crypto.createHash('sha1');
 
 router.route('/studienplan')
     .get(function (req, res) {
@@ -21,27 +26,64 @@ router.route('/studienplan')
             if (err) {
                 return res.send(err);
             }
-            res.send({message: 'Studienplan Added', id: sp._id});
+            // Create random password, hash and save hash
+            var pass = randomstring.generate(5);
+            var shasum = crypto.createHash('sha1');
+            shasum.update(pass);
+            var password = new Password({sid: sp._id, password: shasum.digest('hex')});
+            password.save(function (err) {
+                if (err) {
+                    return res.send(err);
+                }
+                res.send({message: 'Studienplan Added', id: sp._id, password: pass});
+            });
         });
     });
+
+function validatePass(sid, pass, callback) {
+    Password.findOne({sid: sid}, function (error, passw) {
+        if (error) {
+            callback(error);
+            return;
+        }
+        var shasum = crypto.createHash('sha1');
+        shasum.update(pass);
+        if (passw.password !== shasum.digest('hex')) {
+            callback({error: 'Wrong password!'});
+            return;
+        }
+        callback(false);
+    });
+
+}
+
 router.route('/studienplan/:id').
     put(function (req, res) {
         Studienplan.findOne({_id: req.params.id}, function (err, sp) {
             if (err) {
                 return res.send(err);
             }
-
-            for (prop in req.body) {
-                sp[prop] = req.body[prop];
+            if (!('password' in req.body)) {
+                return res.send({error: 'Must provide a password!'});
             }
-
-            // save the movie
-            sp.save(function (err) {
-                if (err) {
-                    return res.send(err);
+            var sid = sp._id;
+            var wanted = req.body.password;
+            validatePass(sid, wanted, function (error) {
+                if (error) {
+                    return res.send(error);
                 }
+                for (prop in req.body) {
+                    if (prop !== "_id" && prop !== "password") //Dont change id / save password
+                        sp[prop] = req.body[prop];
+                }
+                // save the studienplan
+                sp.save(function (err) {
+                    if (err) {
+                        return res.send(err);
+                    }
 
-                res.json({message: 'Studienplan updated!'});
+                    res.json({message: 'Studienplan updated!'});
+                });
             });
         });
     }).get(function (req, res) {
@@ -56,15 +98,26 @@ router.route('/studienplan/:id').
                 res.json(sp);
         });
     }).delete(function (req, res) {
-        Studienplan.remove({
-            _id: req.params.id
-        }, function (err, sp) {
-            if (err) {
-
-                return res.send(err);
+        if (!('password' in req.body)) {
+            return res.send({error: 'Must provide a password!'});
+        }
+        var sid = req.params.id;
+        var wanted = req.body.password;
+        validatePass(sid, wanted, function (error) {
+            if (error) {
+                return res.send(error);
             }
 
-            res.json({message: 'Successfully deleted'});
+            Studienplan.remove({
+                _id: req.params.id
+            }, function (err, sp) {
+                if (err) {
+
+                    return res.send(err);
+                }
+
+                res.json({message: 'Successfully deleted'});
+            });
         });
     });
 module.exports = router;
