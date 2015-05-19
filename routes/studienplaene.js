@@ -7,8 +7,7 @@ var express = require('express');
 var router = express.Router();
 
 var randomstring = require('../lib/randomstring');
-var crypto = require('crypto')
-    , shasum = crypto.createHash('sha1');
+var crypto = require('crypto');
 
 router.route('/studienplan')
     .get(function (req, res) {
@@ -72,9 +71,10 @@ router.route('/studienplan/:id').
                 if (error) {
                     return res.send(error);
                 }
-                for (prop in req.body) {
-                    if (prop !== "_id" && prop !== "password") //Dont change id / save password
+                for (var prop in req.body) {
+                    if (prop !== "_id" && prop !== "password" && req.hasOwnProperty(pop)) { //Dont change id / save password
                         sp[prop] = req.body[prop];
+                    }
                 }
                 // save the studienplan
                 sp.save(function (err) {
@@ -91,11 +91,12 @@ router.route('/studienplan/:id').
             if (err) {
                 return res.send(err);
             }
-            if (sp == null) {
+            if (sp === null) {
                 res.status(404).send({error: "not found"});
             }
-            else
+            else {
                 res.json(sp);
+            }
         });
     }).delete(function (req, res) {
         if (!('password' in req.body)) {
@@ -110,9 +111,8 @@ router.route('/studienplan/:id').
 
             Studienplan.remove({
                 _id: req.params.id
-            }, function (err, sp) {
+            }, function (err) {
                 if (err) {
-
                     return res.send(err);
                 }
 
