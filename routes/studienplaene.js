@@ -72,7 +72,7 @@ router.route('/studienplan/:id').
                     return res.send(error);
                 }
                 for (var prop in req.body) {
-                    if (prop !== "_id" && prop !== "password" && req.hasOwnProperty(pop)) { //Dont change id / save password
+                    if (prop !== "_id" && prop !== "password" && req.hasOwnProperty(prop)) { //Dont change id / save password
                         sp[prop] = req.body[prop];
                     }
                 }
