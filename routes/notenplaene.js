@@ -1,7 +1,7 @@
 /**
  * Created by jan on 15.05.15.
  */
-var Studienplan = require('../models/studienplan');
+var Notenplan = require('../models/notenplan');
 var Password = require('../models/password');
 var express = require('express');
 var router = express.Router();
@@ -11,7 +11,7 @@ var crypto = require('crypto');
 
 router.route('/')
     .get(function (req, res) {
-        Studienplan.find(function (err, sp) {
+        Notenplan.find(function (err, sp) {
             if (err) {
                 return res.send(err);
             }
@@ -19,23 +19,14 @@ router.route('/')
         });
     }).post(function (req, res) {
         console.log(req.body);
-        var sp = new Studienplan(req.body);
+        var sp = new Notenplan(req.body);
 
         sp.save(function (err) {
             if (err) {
                 return res.send(err);
             }
             // Create random password, hash and save hash
-            var pass = randomstring.generate(5);
-            var shasum = crypto.createHash('sha1');
-            shasum.update(pass);
-            var password = new Password({sid: sp._id, password: shasum.digest('hex')});
-            password.save(function (err) {
-                if (err) {
-                    return res.send(err);
-                }
-                res.send({message: 'Studienplan Added', id: sp._id, password: pass});
-            });
+            res.send({message: 'Notenplan Added', id: sp._id});
         });
     });
 
@@ -58,14 +49,14 @@ function validatePass(sid, pass, callback) {
 
 router.route('/:id').
     put(function (req, res) {
-        Studienplan.findOne({_id: req.params.id}, function (err, sp) {
+        Notenplan.findOne({_id: req.params.id}, function (err, sp) {
             if (err) {
                 return res.send(err);
             }
             if (!('password' in req.body)) {
                 return res.send({error: 'Must provide a password!'});
             }
-            var sid = sp._id;
+            var sid = sp.sid;
             var wanted = req.body.password;
             validatePass(sid, wanted, function (error) {
                 if (error) {
@@ -81,13 +72,12 @@ router.route('/:id').
                     if (err) {
                         return res.send(err);
                     }
-
-                    res.json({message: 'Studienplan updated!'});
+                    res.json({message: 'Notenplan updated!'});
                 });
             });
         });
     }).get(function (req, res) {
-        Studienplan.findOne({_id: req.params.id}, function (err, sp) {
+        Notenplan.findOne({_id: req.params.id}, function (err, sp) {
             if (err) {
                 return res.send(err);
             }
@@ -102,21 +92,26 @@ router.route('/:id').
         if (!('password' in req.body)) {
             return res.send({error: 'Must provide a password!'});
         }
-        var sid = req.params.id;
+        var nid = req.params.id;
         var wanted = req.body.password;
-        validatePass(sid, wanted, function (error) {
-            if (error) {
-                return res.send(error);
+        Notenplan.findOne({_id: nid}, function (err, sp) {
+            if (err) {
+                return res.send(err);
             }
-
-            Studienplan.remove({
-                _id: req.params.id
-            }, function (err) {
-                if (err) {
-                    return res.send(err);
+            var sid = sp.sid;
+            validatePass(sid, wanted, function (error) {
+                if (error) {
+                    return res.send(error);
                 }
+                Notenplan.remove({
+                    _id: nid
+                }, function (err) {
+                    if (err) {
+                        return res.send(err);
+                    }
 
-                res.json({message: 'Successfully deleted'});
+                    res.json({message: 'Successfully deleted'});
+                });
             });
         });
     });

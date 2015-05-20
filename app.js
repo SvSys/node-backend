@@ -36,6 +36,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(allowCrossDomain);
 var studienplaene = require('./routes/studienplaene'); //routes are defined here
-app.use('/api', studienplaene); //This is our route middleware
+var notenplaene = require('./routes/notenplaene'); //routes are defined here
+app.use('/api/stundenplan', studienplaene); //This is our route middleware
+app.use('/api/notenplan', notenplaene); //This is our route middleware
 
 module.exports = app;
