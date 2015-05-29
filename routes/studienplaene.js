@@ -13,7 +13,7 @@ router.route('/')
     .get(function (req, res) {
         Studienplan.find(function (err, sp) {
             if (err) {
-                return res.send(err);
+                return res.status(500).send(err);
             }
             res.json(sp);
         });
@@ -23,7 +23,7 @@ router.route('/')
 
         sp.save(function (err) {
             if (err) {
-                return res.send(err);
+                return res.status(500).send(err);
             }
             // Create random password, hash and save hash
             var pass = randomstring.generate(5);
@@ -32,7 +32,7 @@ router.route('/')
             var password = new Password({sid: sp._id, password: shasum.digest('hex')});
             password.save(function (err) {
                 if (err) {
-                    return res.send(err);
+                    return res.status(500).send(err);
                 }
                 res.send({message: 'Studienplan Added', id: sp._id, password: pass});
             });
@@ -60,10 +60,10 @@ router.route('/:id').
     put(function (req, res) {
         Studienplan.findOne({_id: req.params.id}, function (err, sp) {
             if (err) {
-                return res.send(err);
+                return res.status(500).send(err);
             }
             if (!('password' in req.body)) {
-                return res.send({error: 'Must provide a password!'});
+                return res.status(401).send({error: 'Must provide a password!'});
             }
             var sid = sp._id;
             var wanted = req.body.password;
@@ -89,7 +89,7 @@ router.route('/:id').
     }).get(function (req, res) {
         Studienplan.findOne({_id: req.params.id}, function (err, sp) {
             if (err) {
-                return res.send(err);
+                return res.status(500).send(err);
             }
             if (sp === null) {
                 res.status(404).send({error: "not found"});
@@ -100,7 +100,7 @@ router.route('/:id').
         });
     }).delete(function (req, res) {
         if (!('password' in req.body)) {
-            return res.send({error: 'Must provide a password!'});
+            return res.status(401).send({error: 'Must provide a password!'});
         }
         var sid = req.params.id;
         var wanted = req.body.password;

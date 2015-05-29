@@ -12,7 +12,7 @@ router.route('/')
     .get(function (req, res) {
         Notenplan.find(function (err, sp) {
             if (err) {
-                return res.send(err);
+                return res.status(500).send(err);
             }
             res.json(sp);
         });
@@ -22,7 +22,7 @@ router.route('/')
 
         sp.save(function (err) {
             if (err) {
-                return res.send(err);
+                return res.status(500).send(err);
             }
             res.send({message: 'Notenplan Added', id: sp._id});
         });
@@ -47,28 +47,28 @@ function validatePass(sid, pass, callback) {
 
 router.route('/:id').
     put(function (req, res) {
-        Notenplan.findOne({_id: req.params.id}, function (err, sp) {
+        Notenplan.findOne({_id: req.params.id}, function (err, np) {
             if (err) {
                 return res.send(err);
             }
             if (!('password' in req.body)) {
-                return res.send({error: 'Must provide a password!'});
+                return res.status(401).send({error: 'Must provide a password!'});
             }
-            var sid = sp.sid;
+            var sid = np.sid;
             var wanted = req.body.password;
             validatePass(sid, wanted, function (error) {
                 if (error) {
-                    return res.send(error);
+                    return res.status(500).send(error);
                 }
                 for (var prop in req.body) {
                     if (prop !== "_id" && prop !== "password" && req.hasOwnProperty(prop)) { //Dont change id / save password
-                        sp[prop] = req.body[prop];
+                        np[prop] = req.body[prop];
                     }
                 }
-                // save the studienplan
-                sp.save(function (err) {
+                // save the notenplan
+                np.save(function (err) {
                     if (err) {
-                        return res.send(err);
+                        return res.status(500).send(err);
                     }
                     res.json({message: 'Notenplan updated!', id: req.params.id});
                 });
@@ -88,7 +88,7 @@ router.route('/:id').
         });
     }).delete(function (req, res) {
         if (!('password' in req.body)) {
-            return res.send({error: 'Must provide a password!'});
+            return res.status(401).send({error: 'Must provide a password!'});
         }
         var nid = req.params.id;
         var wanted = req.body.password;
