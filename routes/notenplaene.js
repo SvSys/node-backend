@@ -67,8 +67,7 @@ router.route('/:id').
                 np.noten = typeof(req.body.noten) !== 'undefined' ? req.body.noten : np.noten;
                 np.pergebnisse = typeof(req.body.pergebnisse) !== 'undefined' ? req.body.pergebnisse : np.pergebnisse;
                 console.log("Notenplan wird aktualisiert");
-                console.log(np.noten);
-                console.log(req.body.noten);
+                console.log(np);
                 // save the notenplan
                 np.save(function (err) {
                     if (err) {

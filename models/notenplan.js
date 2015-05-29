@@ -10,13 +10,7 @@ function validator(val) {
 }
 
 var npScheme = new Schema({
-    pergebnisse: {
-        0: {type: Number, min: 0, max: 15},
-        1: {type: Number, min: 0, max: 15},
-        2: {type: Number, min: 0, max: 15},
-        3: {type: Number, min: 0, max: 15},
-        4: {type: Number, min: 0, max: 15}
-    },
+    pergebnisse: {type: Array, validate: [validator, "Object ist too big"] },
     noten: {type: Schema.Types.Mixed, validate: [validator, "Object is too big"]},
     sid : Number
 });
