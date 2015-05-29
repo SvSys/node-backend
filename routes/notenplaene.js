@@ -6,7 +6,6 @@ var Password = require('../models/password');
 var express = require('express');
 var router = express.Router();
 
-var randomstring = require('../lib/randomstring');
 var crypto = require('crypto');
 
 router.route('/')
@@ -25,7 +24,6 @@ router.route('/')
             if (err) {
                 return res.send(err);
             }
-            // Create random password, hash and save hash
             res.send({message: 'Notenplan Added', id: sp._id});
         });
     });
@@ -72,7 +70,7 @@ router.route('/:id').
                     if (err) {
                         return res.send(err);
                     }
-                    res.json({message: 'Notenplan updated!'});
+                    res.json({message: 'Notenplan updated!', id: req.params.id});
                 });
             });
         });

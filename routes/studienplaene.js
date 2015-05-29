@@ -82,7 +82,7 @@ router.route('/:id').
                         return res.send(err);
                     }
 
-                    res.json({message: 'Studienplan updated!'});
+                    res.json({message: 'Studienplan updated!', id: sid});
                 });
             });
         });
