@@ -41,18 +41,31 @@ router.route('/')
 
 function validatePass(sid, pass, callback) {
     Password.findOne({sid: sid}, function (error, passw) {
-        if (error) {
-            callback(error);
-            return;
+            if (error) {
+                callback(error);
+                return;
+            }
+            try {
+                var shasum = crypto.createHash('sha1');
+                shasum.update(pass);
+                if (passw.password !== shasum.digest('hex')) {
+                    callback({error: 'Wrong password!'});
+                    return;
+                }
+            }
+            catch (err) {
+                console.log('Ein Fehler ist aufgetreten!');
+                if (err.message)
+                    console.log('\nNachricht: ' + err.message);
+                if (err.stack) {
+                    console.log('\nStacktrace:');
+                    console.log(err.stack);
+                }
+            }
+            callback(false);
         }
-        var shasum = crypto.createHash('sha1');
-        shasum.update(pass);
-        if (passw.password !== shasum.digest('hex')) {
-            callback({error: 'Wrong password!'});
-            return;
-        }
-        callback(false);
-    });
+    )
+    ;
 
 }
 
@@ -69,7 +82,7 @@ router.route('/:id').
             var wanted = req.body.password;
             validatePass(sid, wanted, function (error) {
                 if (error) {
-                    return res.send(error);
+                    return res.status(401).send(error);
                 }
                 for (var prop in req.body) {
                     if (prop !== "_id" && prop !== "password" && req.hasOwnProperty(prop)) { //Dont change id / save password
@@ -79,7 +92,7 @@ router.route('/:id').
                 // save the studienplan
                 sp.save(function (err) {
                     if (err) {
-                        return res.send(err);
+                        return res.status(500).send(err);
                     }
 
                     res.json({message: 'Studienplan updated!', id: sid});
@@ -106,14 +119,14 @@ router.route('/:id').
         var wanted = req.body.password;
         validatePass(sid, wanted, function (error) {
             if (error) {
-                return res.send(error);
+                return res.status(401).send(error);
             }
 
             Studienplan.remove({
                 _id: req.params.id
             }, function (err) {
                 if (err) {
-                    return res.send(err);
+                    return res.sstatus(500).end(err);
                 }
 
                 res.json({message: 'Successfully deleted'});
