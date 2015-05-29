@@ -17,7 +17,6 @@ router.route('/')
             res.json(sp);
         });
     }).post(function (req, res) {
-        console.log(req.body);
         var sp = new Notenplan(req.body);
 
         sp.save(function (err) {
@@ -60,11 +59,16 @@ router.route('/:id').
                 if (error) {
                     return res.status(500).send(error);
                 }
-                for (var prop in req.body) {
+                /*for (var prop in req.body) {
                     if (prop !== "_id" && prop !== "password" && req.hasOwnProperty(prop)) { //Dont change id / save password
                         np[prop] = req.body[prop];
                     }
-                }
+                }*/
+                np.noten = typeof(req.body.noten) !== 'undefined' ? req.body.noten : np.noten;
+                np.pergebnisse = typeof(req.body.pergebnisse) !== 'undefined' ? req.body.pergebnisse : np.pergebnisse;
+                console.log("Notenplan wird aktualisiert");
+                console.log(np.noten);
+                console.log(req.body.noten);
                 // save the notenplan
                 np.save(function (err) {
                     if (err) {
