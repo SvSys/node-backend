@@ -5,6 +5,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var autoIncrement = require('mongoose-auto-increment');
+var cors = require('cors');
+
 var app = express(); //Create the Express app
 
 //connect to our database
@@ -18,15 +20,17 @@ var opts = {
     user: username,
     pass: password
 };
-var connectionString = 'mongodb://'+host+':'+port+'/' + dbName;
+var connectionString = 'mongodb://' + host + ':' + port + '/' + dbName;
 
 var connection = mongoose.connect(connectionString, opts);
 autoIncrement.initialize(connection);
 
-var allowCrossDomain = function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
+var allowCrossDomain = function (req, res, next) {
+    console.log(req.get('Origin'));
+    res.header('Access-Control-Allow-Origin', req.get('Origin'));
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.header('Access-Control-Allow-Credentials', 'true');
 
     next();
 };
@@ -35,9 +39,13 @@ var allowCrossDomain = function(req, res, next) {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(allowCrossDomain);
+
 var studienplaene = require('./routes/studienplaene'); //routes are defined here
 var notenplaene = require('./routes/notenplaene'); //routes are defined here
+var kurse = require('./routes/kurse');
+
 app.use('/api/stundenplan', studienplaene); //This is our route middleware
 app.use('/api/notenplan', notenplaene); //This is our route middleware
+app.use('/api/kurse', kurse); //This is our route middleware
 
 module.exports = app;
