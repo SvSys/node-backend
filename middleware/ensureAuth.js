@@ -2,6 +2,10 @@
  * Created by jan on 22.07.15.
  */
 
+var jwt = require('jwt-simple');
+var config = require('../config');
+var moment = require('moment');
+
 module.exports = {
     ensureAuthenticated: function (req, res, next) {
         if (!req.headers.authorization) {
