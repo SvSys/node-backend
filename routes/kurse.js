@@ -65,7 +65,13 @@ router.route('/kurs/:id').put(ensure.ensureAuthenticated, function (req, res) {
         if (kurs === null || typeof(kurs) === 'undefined') {
             return res.status(404).send({error: "not found"});
         }
-        var index = kurs.schueler.indexOf(name);
+        var index = -1;
+        for (var i = 0; i < kurs.schueler.length; i++) {
+            if (kurs.schueler[i].name === req.user.name) {
+                index = i;
+                break;
+            }
+        }
         if (index > -1) {
             kurs.schueler.splice(index, 1);
             kurs.save(function (err) {
@@ -76,7 +82,7 @@ router.route('/kurs/:id').put(ensure.ensureAuthenticated, function (req, res) {
             });
         }
         else {
-            return response.status(204).send();
+            return res.status(204).send();
         }
     });
 });
@@ -89,7 +95,7 @@ router.route('/me').get(ensure.ensureAuthenticated, function (req, res) {
  * Debugging only!
  **/
 router.route('/kurs/').post(function (req, res) {
-    return res.status(410).json({'error' : 'gone'});
+    return res.status(410).json({'error': 'gone'});
     var kurs = new Kurs(req.body);
 
     kurs.save(function (err) {
