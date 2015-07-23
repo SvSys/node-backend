@@ -21,7 +21,7 @@ router.route('/kurs/:id').put(ensure.ensureAuthenticated, function (req, res) {
         if (kurs === null || typeof(kurs) === 'undefined') {
             return res.status(404).send({error: "not found"});
         }
-        Kurs.find({leiste: kurs.leiste, schueler: name}, function (err, kurs2) {
+        Kurs.find({leiste: kurs.leiste, schueler: req.user}, function (err, kurs2) {
             if (err) {
                 return res.send(err);
             }
@@ -30,9 +30,9 @@ router.route('/kurs/:id').put(ensure.ensureAuthenticated, function (req, res) {
                 return res.status(420).send({error: "leiste_belegt"});
             }
             if (Array.isArray(kurs.schueler))
-                kurs.schueler.push(name);
+                kurs.schueler.push(req.user);
             else
-                kurs.schueler = [name];
+                kurs.schueler = [req.user];
 
             kurs.save(function (err) {
                 if (err) {
@@ -55,13 +55,41 @@ router.route('/kurs/:id').put(ensure.ensureAuthenticated, function (req, res) {
 
         return res.send(kurs);
     });
+}).delete(ensure.ensureAuthenticated, function (req, res) {
+    var kursid = req.params.id;
+    var name = req.user;
+    Kurs.findOne({kurs_id: kursid}, function (err, kurs) {
+        if (err) {
+            return res.send(err);
+        }
+        if (kurs === null || typeof(kurs) === 'undefined') {
+            return res.status(404).send({error: "not found"});
+        }
+        var index = kurs.schueler.indexOf(name);
+        if (index > -1) {
+            kurs.schueler.splice(index, 1);
+            kurs.save(function (err) {
+                if (err) {
+                    return res.status(500).send(err);
+                }
+                return res.json({message: 'You have been deleted!'});
+            });
+        }
+        else {
+            return response.status(204).send();
+        }
+    });
+});
+
+router.route('/me').get(ensure.ensureAuthenticated, function (req, res) {
+    return res.send(req.user);
 });
 
 /**
- *
  * Debugging only!
- *
- router.route('/kurs/').post(function (req, res) {
+ **/
+router.route('/kurs/').post(function (req, res) {
+    return res.status(410).json({'error' : 'gone'});
     var kurs = new Kurs(req.body);
 
     kurs.save(function (err) {
@@ -73,7 +101,6 @@ router.route('/kurs/:id').put(ensure.ensureAuthenticated, function (req, res) {
     });
 
 });
- */
 
 router.route('/').get(function (req, res) {
     Kurs.find({}, '-_id -__v', function (err, kurse) {

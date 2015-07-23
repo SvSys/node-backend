@@ -8,7 +8,7 @@ var kuScheme = new Schema({
     kurs_id: String,
     leiste: String,
     lehrer: {type: String, index: true},
-    schueler: [String],
+    schueler: [Schema.Types.Mixed],
     max: Number
 });
 
