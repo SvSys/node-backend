@@ -38,6 +38,7 @@ var allowCrossDomain = function (req, res, next) {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(allowCrossDomain);
+app.disable('etag');
 
 var studienplaene = require('./routes/studienplaene'); //routes are defined here
 var notenplaene = require('./routes/notenplaene'); //routes are defined here
